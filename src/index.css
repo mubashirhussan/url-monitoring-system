@@ -37,24 +37,11 @@ h1 {
   line-height: 1.1;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
+/* button {
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: #4f39f6 !important;
   cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
+} */
 
 @media (prefers-color-scheme: light) {
   :root {
@@ -67,4 +54,47 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  width: 100%; /* Ensure it stretches to full width */
+}
+
+.no-focus-outline:focus,
+.no-focus-outline:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+/* Add this to your CSS file */
+.ant-menu-item-selected {
+  background-color: #3c2fd1 !important; /* slightly darker than #4f39f6 */
+  color: #fff !important;
+}
+.ant-menu-item:hover {
+  background-color: #3c2fd1 !important;
+  color: #fff !important;
+}
+/* Sidebar when collapsed */
+.sider-collapsed {
+  width: 80px !important;
+  min-width: 80px !important;
+  max-width: 80px !important;
+}
+
+/* Sidebar when expanded */
+.sider-expanded {
+  width: 250px !important;
+  min-width: 250px !important;
+  max-width: 250px !important;
+}
+.custom-menu .ant-menu-item,
+.custom-menu .ant-menu-submenu-title {
+  color: white !important;
+}
+.ant-popconfirm-message-icon {
+  display: none !important;
 }
