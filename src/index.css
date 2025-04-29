@@ -98,3 +98,6 @@ body,
 .ant-popconfirm-message-icon {
   display: none !important;
 }
+.login-form .ant-form-item-required {
+  width: 100% !important;
+}

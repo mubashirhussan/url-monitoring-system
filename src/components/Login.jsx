@@ -30,7 +30,7 @@ export default function Login() {
         </h2>
       </div>
 
-      <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+      <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm login-form">
         <Form layout="vertical" onFinish={onFinish} autoComplete="off">
           <Form.Item
             label="Email address"
@@ -44,12 +44,23 @@ export default function Login() {
           </Form.Item>
 
           <Form.Item
-            label="Password"
+            label={
+              <div className="w-full flex justify-between items-center">
+                <span>Password</span>
+                <a
+                  href="/forgot-password"
+                  className="text-sm font-semibold text-indigo-600 hover:text-indigo-500"
+                >
+                  Forgot password?
+                </a>
+              </div>
+            }
             name="password"
             rules={[{ required: true, message: "Please input your password!" }]}
           >
             <Input.Password />
           </Form.Item>
+
           {loginError && (
             <div className="text-red-600 text-sm mb-4">{loginError}</div>
           )}
