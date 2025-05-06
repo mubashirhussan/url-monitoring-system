@@ -10,6 +10,7 @@ import {
   message,
   DatePicker,
   Popconfirm,
+  Tabs,
 } from "antd";
 import { Link } from "react-router-dom";
 import { ExclamationCircleOutlined, MoreOutlined } from "@ant-design/icons";
@@ -21,6 +22,7 @@ const CustomDataTable = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [htmlContent, setHtmlContent] = useState("");
+  const [activeTab, setActiveTab] = useState("1");
   const [dataSource, setDataSource] = useState([
     {
       key: "1",
@@ -50,12 +52,14 @@ const CustomDataTable = () => {
       lastCheck: "2025-04-28",
     },
   ]);
+
   const handleViewHtml = async (url) => {
     debugger;
     try {
       const response = await fetch(url);
       const text = await response.text();
       setHtmlContent(text);
+      setActiveTab("1"); // Reset to first tab when new content loads
     } catch (error) {
       console.error("Failed to fetch HTML:", error);
       message.error("Could not load content.");
@@ -109,7 +113,7 @@ const CustomDataTable = () => {
                     cancelText="No"
                     okButtonProps={{
                       style: {
-                        backgroundColor: "#f5222d", // red background
+                        backgroundColor: "#f5222d",
                         borderColor: "#f5222d",
                         color: "#fff",
                       },
@@ -215,6 +219,95 @@ const CustomDataTable = () => {
       );
     });
 
+  const tabItems = [
+    {
+      key: "1",
+      label: "Page",
+      children: (
+        <div
+          style={{
+            border: "1px solid #ddd",
+            padding: "16px",
+            maxHeight: 400,
+            overflow: "auto",
+            background: "#fafafa",
+          }}
+          dangerouslySetInnerHTML={{ __html: htmlContent }}
+        />
+      ),
+    },
+    {
+      key: "2",
+      label: "Text",
+      children: (
+        <div style={{ padding: "16px" }}>
+          <h4>Website-Watcher Features</h4>
+          <ul>
+            <li>Monitor website changes</li>
+            <li>Get notifications</li>
+            <li>Compare versions</li>
+            <li>Track historical changes</li>
+          </ul>
+        </div>
+      ),
+    },
+    {
+      key: "3",
+      label: "Changes",
+      children: (
+        <div style={{ padding: "16px" }}>
+          <p>Screenshots of the monitored website will appear here</p>
+          <div
+            style={{
+              border: "1px dashed #ccc",
+              padding: "20px",
+              textAlign: "center",
+              marginTop: "10px",
+            }}
+          >
+            Screenshot Preview Area
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: "4",
+      label: "Analysis",
+      children: (
+        <div style={{ padding: "16px" }}>
+          <h4>Available Downloads</h4>
+          <Table
+            columns={[
+              { title: "Version", dataIndex: "version", key: "version" },
+              { title: "Size", dataIndex: "size", key: "size" },
+              { title: "Date", dataIndex: "date", key: "date" },
+              {
+                title: "Action",
+                key: "action",
+                render: () => <Button type="link">Download</Button>,
+              },
+            ]}
+            dataSource={[
+              {
+                key: "1",
+                version: "25.1",
+                size: "15.2 MB",
+                date: "2025-04-15",
+              },
+              {
+                key: "2",
+                version: "24.5",
+                size: "14.8 MB",
+                date: "2024-12-10",
+              },
+            ]}
+            pagination={false}
+          />
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div className="md:p-4 p-2">
       <div className="flex flex-col md:flex-row justify-between gap-2 mb-4">
@@ -236,21 +329,19 @@ const CustomDataTable = () => {
         scroll={{ x: true }}
         pagination={{ pageSize: 5 }}
       />
+
       {htmlContent && (
         <div style={{ marginTop: 24 }}>
-          <h3>Preview</h3>
-          <div
-            style={{
-              border: "1px solid #ddd",
-              padding: "16px",
-              maxHeight: 400,
-              overflow: "auto",
-              background: "#fafafa",
-            }}
-            dangerouslySetInnerHTML={{ __html: htmlContent }}
+          <h3>Website Preview</h3>
+          <Tabs
+            activeKey={activeTab}
+            onChange={setActiveTab}
+            items={tabItems}
+            tabBarStyle={{ marginBottom: 0 }}
           />
         </div>
       )}
+
       <Modal
         title={editRecord ? "Edit Url" : "Add Url"}
         open={isModalOpen}
