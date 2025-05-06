@@ -45,7 +45,7 @@ const CustomDataTable = () => {
     {
       key: "3",
       name: "Edison",
-      url: "https://jsonplaceholder.typicode.com",
+      url: "https://www.xubrtech.com/",
       method: "GET",
       lastChange: "2025-04-01",
       status: "Active",
@@ -54,7 +54,6 @@ const CustomDataTable = () => {
   ]);
 
   const handleViewHtml = async (url) => {
-    debugger;
     try {
       const response = await fetch(url);
       const text = await response.text();
