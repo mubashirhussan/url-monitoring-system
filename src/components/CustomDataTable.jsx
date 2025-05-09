@@ -323,7 +323,7 @@ const CustomDataTable = () => {
         open={isModalOpen}
         onCancel={handleCancel}
         onOk={handleAdd}
-        okText={editRecord ? "Update" : "Fetch & Add"}
+        okText={editRecord ? "Update" : "Add"}
       >
         <Form form={form} layout="vertical">
           {!editRecord ? (
