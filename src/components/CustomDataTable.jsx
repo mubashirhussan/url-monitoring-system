@@ -1,4 +1,3 @@
-/* eslint-disable no-debugger */
 import React, { useState } from "react";
 import {
   Button,
@@ -12,7 +11,6 @@ import {
   Popconfirm,
   Tabs,
 } from "antd";
-import { Link } from "react-router-dom";
 import { ExclamationCircleOutlined, MoreOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 
@@ -33,24 +31,6 @@ const CustomDataTable = () => {
       status: "Active",
       lastCheck: "2025-04-28",
     },
-    {
-      key: "2",
-      name: "John",
-      url: "https://jsonplaceholder.typicode.com",
-      method: "GET",
-      lastChange: "2025-04-01",
-      status: "Active",
-      lastCheck: "2025-04-28",
-    },
-    {
-      key: "3",
-      name: "Edison",
-      url: "https://www.xubrtech.com/",
-      method: "GET",
-      lastChange: "2025-04-01",
-      status: "Active",
-      lastCheck: "2025-04-28",
-    },
   ]);
 
   const handleViewHtml = async (url) => {
@@ -58,7 +38,7 @@ const CustomDataTable = () => {
       const response = await fetch(url);
       const text = await response.text();
       setHtmlContent(text);
-      setActiveTab("1"); // Reset to first tab when new content loads
+      setActiveTab("1");
     } catch (error) {
       console.error("Failed to fetch HTML:", error);
       message.error("Could not load content.");
@@ -103,7 +83,7 @@ const CustomDataTable = () => {
                         <ExclamationCircleOutlined
                           style={{ color: "red", marginRight: 8 }}
                         />
-                        <span>Delete the task</span>
+                        Delete the task
                       </span>
                     }
                     description="Are you sure to delete this task?"
@@ -157,7 +137,11 @@ const CustomDataTable = () => {
     message.success("Deleted successfully");
   };
 
-  const showModal = () => setIsModalOpen(true);
+  const showModal = () => {
+    form.resetFields();
+    setEditRecord(null);
+    setIsModalOpen(true);
+  };
 
   const handleCancel = () => {
     form.resetFields();
@@ -165,58 +149,51 @@ const CustomDataTable = () => {
     setEditRecord(null);
   };
 
-  const handleAdd = () => {
-    form
-      .validateFields()
-      .then((values) => {
+  const handleAdd = async () => {
+    try {
+      const values = await form.validateFields();
+      const url = values.url;
+
+      if (!editRecord) {
+        // Mock fetch - you can replace this with actual API call
+        const fetchedData = {
+          name: "Fetched Name",
+          url,
+          method: "GET",
+          lastChange: dayjs().format("YYYY-MM-DD"),
+          status: "Active",
+          lastCheck: dayjs().format("YYYY-MM-DD"),
+        };
+
+        const newItem = {
+          ...fetchedData,
+          key: Date.now().toString(),
+        };
+
+        setDataSource((prev) => [...prev, newItem]);
+        message.success("URL data fetched and added");
+      } else {
         const formattedValues = {
           ...values,
           lastChange: values.lastChange?.format("YYYY-MM-DD"),
           lastCheck: values.lastCheck?.format("YYYY-MM-DD"),
         };
 
-        if (editRecord) {
-          setDataSource((prev) =>
-            prev.map((item) =>
-              item.key === editRecord.key
-                ? { ...item, ...formattedValues }
-                : item
-            )
-          );
-          message.success("Item updated");
-        } else {
-          const newItem = {
-            ...formattedValues,
-            key: Date.now().toString(),
-          };
-          setDataSource((prev) => [...prev, newItem]);
-          message.success("Item added");
-        }
+        setDataSource((prev) =>
+          prev.map((item) =>
+            item.key === editRecord.key ? { ...item, ...formattedValues } : item
+          )
+        );
+        message.success("Item updated");
+      }
 
-        form.resetFields();
-        setIsModalOpen(false);
-        setEditRecord(null);
-      })
-      .catch((err) => {
-        console.log("Validation Failed:", err);
-      });
+      form.resetFields();
+      setIsModalOpen(false);
+      setEditRecord(null);
+    } catch (err) {
+      console.log("Validation Failed:", err);
+    }
   };
-
-  const dynamicFormFields = columns
-    .filter((col) => col.key !== "actions")
-    .map((col) => {
-      const isDateField = col.key === "lastChange" || col.key === "lastCheck";
-      return (
-        <Form.Item
-          key={col.key}
-          name={col.key}
-          label={col.title}
-          rules={[{ required: true, message: `${col.title} is required` }]}
-        >
-          {isDateField ? <DatePicker style={{ width: "100%" }} /> : <Input />}
-        </Form.Item>
-      );
-    });
 
   const tabItems = [
     {
@@ -345,32 +322,44 @@ const CustomDataTable = () => {
         title={editRecord ? "Edit Url" : "Add Url"}
         open={isModalOpen}
         onCancel={handleCancel}
-        footer={null}
-        width={{
-          xs: "90%",
-          sm: "80%",
-          md: "70%",
-          lg: "60%",
-          xl: "50%",
-          xxl: "40%",
-        }}
+        onOk={handleAdd}
+        okText={editRecord ? "Update" : "Fetch & Add"}
       >
         <Form form={form} layout="vertical">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {dynamicFormFields}
-          </div>
-
-          <div className="flex justify-end mt-4">
-            <Form.Item>
-              <Button
-                type="primary"
-                onClick={handleAdd}
-                className="!bg-[#4f39f6]"
-              >
-                {editRecord ? "Update" : "Add"}
-              </Button>
+          {!editRecord ? (
+            <Form.Item
+              name="url"
+              label="URL"
+              rules={[{ required: true, message: "URL is required" }]}
+            >
+              <Input placeholder="Enter URL" />
             </Form.Item>
-          </div>
+          ) : (
+            <>
+              {columns
+                .filter((col) => col.key !== "actions")
+                .map((col) => {
+                  const isDate =
+                    col.key === "lastChange" || col.key === "lastCheck";
+                  return (
+                    <Form.Item
+                      key={col.key}
+                      name={col.key}
+                      label={col.title}
+                      rules={[
+                        { required: true, message: `${col.title} is required` },
+                      ]}
+                    >
+                      {isDate ? (
+                        <DatePicker style={{ width: "100%" }} />
+                      ) : (
+                        <Input />
+                      )}
+                    </Form.Item>
+                  );
+                })}
+            </>
+          )}
         </Form>
       </Modal>
     </div>
